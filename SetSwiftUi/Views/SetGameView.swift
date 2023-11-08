@@ -8,17 +8,36 @@
 import SwiftUI
 
 struct SetGameView: View {
+    var setGameViewModel: SetGameViewModel
+    
+    private let aspectRatio: CGFloat = 2/3
+    private let spacing: CGFloat = 4
+    
+    
+    
     var body: some View {
         VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+            //Text("Cards in deck: \(setGameViewModel.cardsInPlay.count)")
+            setCards
+            Button("Deal") {
+                setGameViewModel.dealThreeCards()
+            }
         }
         .padding()
+    }
+    
+    private var setCards: some View {
+        AspectVGrid(setGameViewModel.cardsInPlay, aspectRatio: aspectRatio) { card in
+            SetCardView(card)
+                .padding(spacing)
+                .onTapGesture {
+                    setGameViewModel.selectCard(withId: card.id)
+                }
+        }
     }
 }
 
 #Preview {
-    SetGameView()
+    SetGameView(setGameViewModel: SetGameViewModel())
 }
+
