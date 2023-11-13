@@ -12,7 +12,6 @@ struct Cardify: ViewModifier {
     let cardState: SetGame.CardState
     
     func body(content: Content) -> some View {
-        let base = RoundedRectangle(cornerRadius: Constants.cornerRadius)
         let fillColor: Color = {
             switch cardState {
             case .unselected: return .white
@@ -22,14 +21,15 @@ struct Cardify: ViewModifier {
             }
         }()
         return ZStack {
-            
+            let base = RoundedRectangle(cornerRadius: Constants.cornerRadius)
             base.strokeBorder(lineWidth: Constants.lineWidth)
                 .background(base.fill(
                     fillColor
                 ))
                 .overlay(content)
                 .opacity(isFaceUp ? 1 : 0)
-            base.fill()
+            // TODO: Move back of card color to view model
+            base.fill(.teal)
                 .opacity(isFaceUp ? 0 : 1)
         }
     }

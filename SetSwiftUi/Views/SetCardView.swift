@@ -28,6 +28,9 @@ struct SetCardView: View {
         })
         .padding(EdgeInsets(top: inset, leading: inset, bottom: inset, trailing: inset))
         .cardify(isFaceUp: setCard.isFaceUp, cardState: setCard.cardState)
+        .rotationEffect(Angle(degrees: setCard.cardState == .mismatch ? 180 : 0))
+        .scaleEffect(setCard.cardState == .set ? CGSize(width: 2.0, height: 2.0) : CGSize(width: 1.0, height: 1.0))
+        .zIndex(setCard.cardState == .set ? 100 : 0 )
     }
     
     private struct Constants {

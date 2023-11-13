@@ -11,7 +11,6 @@ import Foundation
 struct SetGame {
     
     /// The deck of cards used to play a `SetGame`. At the start of the game this deck will consist of all 81 possible cards.
-    ///
     private(set) var deck: Array<SetCard> = []
     
     /// The group of cards that have been dealt from `deck`. Does not include those that have been dealt and then matched.
@@ -27,13 +26,27 @@ struct SetGame {
     /// Initialises a SetGame instance by generating `deck` and dealing 12 cards to `cardsInPlay`.
     init() {
         generateDeck()
-        deal(numCards: 12)
+        //deal(numCards: 12)
+    }
+    
+    mutating func newGame() {
+        deck = []
+        cardsInPlay = []
+        selectedCards = []
+        matchedCards = []
+        generateDeck()
+    }
+    
+    mutating func shuffle() {
+        cardsInPlay.shuffle()
     }
     
     /// Returns the first card in `deck`, or `nil` if `deck` is empty.
     private mutating func dealNextCard() -> SetCard? {
         guard !deck.isEmpty else { return nil }
-        return deck.removeFirst()
+        var nextCard = deck.removeFirst()
+        nextCard.isFaceUp = true
+        return nextCard
     }
     
     /// Removes numCards from deck and appends them to `cardsInPlay`, provided `numCards` is less than the total number of cards in `deck`, else removes all remaining cards from `deck` and appends them to `cardsInPlay`.
@@ -43,11 +56,13 @@ struct SetGame {
                 cardsInPlay.append(dealtCard)
             }
         }
+        threeCardsAlreadySelected()
     }
     
     /// Returns a bool representing whether the cards contains in `selectedCards` comprise a Set.
     private func isSet() -> Bool {
         guard selectedCards.count == 3 else { return false }
+        //return true
         return [
             Set(selectedCards.map {$0.color}),
             Set(selectedCards.map {$0.fill}),
@@ -57,6 +72,7 @@ struct SetGame {
     }
     
     /// Moves cards that have been matched from `selectedCards` to `matchedCards` and empties `selectedCards`.
+    // TODO: rename this function and change its comment
     mutating func threeCardsAlreadySelected() {
         guard selectedCards.count == 3 else { return }
         let selectedCardsIndices = selectedCards.map{$0.id}
@@ -65,9 +81,9 @@ struct SetGame {
             selectedCardsIndices.forEach { index in
                 if let selectedCardInPlayIndex = cardsInPlay.firstIndex(where: {$0.id == index}) {
                     cardsInPlay.remove(at: selectedCardInPlayIndex)
-                    if let nextCard = dealNextCard() {
-                        cardsInPlay.insert(nextCard, at: selectedCardInPlayIndex)
-                    }
+//                    if let nextCard = dealNextCard() {
+//                        cardsInPlay.insert(nextCard, at: selectedCardInPlayIndex)
+//                    }
                 }
             }
         } else {
@@ -80,7 +96,21 @@ struct SetGame {
         selectedCards.removeAll()
     }
     
-    private mutating func updateSelectedCardsState() {
+    mutating func updateSelectedCardsState() {
+        guard selectedCards.count == 3 else { return }
+        let selectedCardsIndices = selectedCards.map{$0.id}
+        selectedCardsIndices.forEach { index in
+            if let selectedCardInPlayIndex = cardsInPlay.firstIndex(where: {$0.id == index}) {
+                if isSet() {
+                    //cardsInPlay[selectedCardInPlayIndex].cardState = .set
+                } else {
+                    cardsInPlay[selectedCardInPlayIndex].cardState = .mismatch
+                }
+            }
+        }
+    }
+    
+     mutating func updateCardState() {
         guard selectedCards.count == 3 else { return }
         let selectedCardsIndices = selectedCards.map{$0.id}
         selectedCardsIndices.forEach { index in
@@ -94,8 +124,9 @@ struct SetGame {
         }
     }
     
+
+    
     mutating func selectCard(withId id: String) {
-        print(id)
         threeCardsAlreadySelected()
         if let chosenIndex = cardsInPlay.firstIndex(where: {$0.id == id}) {
             if let selectedCardIndex = selectedCards.firstIndex(where: {$0.id == id}) {
@@ -105,10 +136,8 @@ struct SetGame {
                 selectedCards.append(cardsInPlay[chosenIndex])
                 cardsInPlay[chosenIndex].cardState = .selected
             }
-            updateSelectedCardsState()
-
+            //updateSelectedCardsState()
         }
-
     }
     
     /// A type to represent the state of a card that is in play
@@ -118,12 +147,15 @@ struct SetGame {
 
     
     /// The individual cards in a `SetGame` deck
-    struct SetCard: Identifiable {
+    struct SetCard: Identifiable, Equatable {
         /// A `Bool` representing whether the card is face up
-        var isFaceUp = true
+        var isFaceUp = false
         
         /// A `Bool` representing whether the card is has been dealt.
         var isDealt = false
+        
+        /// A `Bool` representing whether the card is selected.
+        var isSelected = false
         
         /// A `Bool` representing whether the card has been matched with two other cards to make a Set
         var isMatched = false
