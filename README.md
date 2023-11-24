@@ -1,5 +1,7 @@
 # SetSwiftUI
 
+![][gameplay.gif]
+
 ## Overview
 
 SetSwiftUI is an interactive iOS application implementing the popular card game Set, built using SwiftUI. This project is built using the MVVM architectural pattern and the focusing is on creating an engaging user experience with eye-catching animation.
@@ -13,7 +15,7 @@ SetSwiftUI is an interactive iOS application implementing the popular card game 
 -  **Implicit and Explicit Animations**: Smoothly integrated for user interactions.
 - **Transitions and Matched Geometry Effect**: Enhance the visual appeal by animating view appearances and movements.
 
-### Custom Shapes, and ViewModifiers
+### 🔸 Custom Shapes, and ViewModifiers
 - **ViewModifier for Cards**: Cardify is a custom ViewModifier that stylizes standard views into game cards, showcasing reusability in SwiftUI.
 - **Custom Diamond Shape**: Demonstrates UI drawing using path(in:).
 
