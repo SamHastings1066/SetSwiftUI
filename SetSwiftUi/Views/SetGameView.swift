@@ -148,7 +148,7 @@ struct SetGameView: View {
                     //.rotationEffect(Angle(degrees: card.cardState == .set ? 180 : 0))
                     //.animation(.linear.repeatForever(autoreverses: false), value: card)
                     .padding(spacing)
-                // TODO: have this implicit animation work wiht the repeat forever animation below
+                // TODO: have this implicit animation work with the repeat forever animation below
                     .animation(.default, value: setGameViewModel.cardsInPlay)
                     .onTapGesture {
                         setGameViewModel.selectCard(withId: card.id)
@@ -157,13 +157,8 @@ struct SetGameView: View {
                             setGameViewModel.updateCardState()
                             //setGameViewModel.updateSelectedCardsState()
                         }
-                        
                         discard()
                     }
-                    
-                
-                //withAnimation(.linear.repeatForever(autoreverses: false)) {
-                //}
             }
         }
     }
