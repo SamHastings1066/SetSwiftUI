@@ -1,6 +1,6 @@
 # SetSwiftUI
 
-![][gameplay.gif]
+![Gameplay](gameplay.gif)
 
 ## Overview
 
