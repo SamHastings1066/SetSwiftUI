@@ -62,11 +62,11 @@ struct SetGameView: View {
     private var deck: some View {
         return ZStack {
             ForEach(setGameViewModel.deck) { card in
-                SetCardView(card)
+                SetCardView(card, viewModel: setGameViewModel)
                     .matchedGeometryEffect(id: card.id, in: dealingNamespace)
                     .transition(.asymmetric(insertion: .identity, removal: .identity))
             }
-            // Using frame here to set a specific size for the deck is acceptable only because we want the deck to take up this exact amount of space regardless of how many cards are in play.
+            // Using frame here to set a specific size for the deck is acceptable only because I want the deck to take up this exact amount of space regardless of how many cards are in play.
             .frame(width: deckWidth, height: deckWidth / aspectRatio)
             .onTapGesture {
                 deal()
@@ -103,11 +103,11 @@ struct SetGameView: View {
     private var discardPile: some View {
         return ZStack {
             Color.clear
-                .cardify(isFaceUp: true, cardState: .unselected)
+                .cardify(isFaceUp: true, cardState: .unselected, viewModel: setGameViewModel)
                 .frame(width: deckWidth, height: deckWidth / aspectRatio)
             ForEach(setGameViewModel.matchedCards) { card in
                 if isMatched(card) {
-                    SetCardView(card)
+                    SetCardView(card, viewModel: setGameViewModel)
                         .matchedGeometryEffect(id: card.id, in: discardNamespace)
                         .transition(.asymmetric(insertion: .identity, removal: .identity))
                 }
@@ -140,7 +140,7 @@ struct SetGameView: View {
     private var setCards: some View {
         AspectVGrid(setGameViewModel.cardsInPlay + setGameViewModel.matchedCards, aspectRatio: aspectRatio) { card in
             if isDealt(card) {
-                SetCardView(card)
+                SetCardView(card, viewModel: setGameViewModel)
                     .matchedGeometryEffect(id: card.id, in: discardNamespace)
                     .matchedGeometryEffect(id: card.id, in: dealingNamespace)
                     .transition(.asymmetric(insertion: .identity, removal: .identity))
@@ -155,7 +155,6 @@ struct SetGameView: View {
                         
                         withAnimation(.linear.repeatForever(autoreverses: false)) {
                             setGameViewModel.updateCardState()
-                            //setGameViewModel.updateSelectedCardsState()
                         }
                         discard()
                     }

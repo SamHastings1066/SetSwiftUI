@@ -10,6 +10,7 @@ import SwiftUI
 struct Cardify: ViewModifier {
     let isFaceUp: Bool
     let cardState: SetGame.CardState
+    let backColor: Color
     
     func body(content: Content) -> some View {
         let fillColor: Color = {
@@ -29,7 +30,7 @@ struct Cardify: ViewModifier {
                 .overlay(content)
                 .opacity(isFaceUp ? 1 : 0)
             // TODO: Move back of card color to view model
-            base.fill(.teal)
+            base.fill(backColor)
                 .opacity(isFaceUp ? 0 : 1)
         }
     }
@@ -41,7 +42,7 @@ struct Cardify: ViewModifier {
 }
 
 extension View {
-    func cardify(isFaceUp: Bool, cardState: SetGame.CardState) -> some View {
-        modifier(Cardify(isFaceUp: isFaceUp, cardState: cardState))
+    func cardify(isFaceUp: Bool, cardState: SetGame.CardState, viewModel: SetGameViewModel) -> some View {
+        modifier(Cardify(isFaceUp: isFaceUp, cardState: cardState, backColor: viewModel.cardBackColor))
     }
 }

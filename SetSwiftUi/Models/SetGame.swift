@@ -7,158 +7,20 @@
 
 import Foundation
 
-/// The model for a `SetGame` containing all properties and methods that define a game.
+/// A type to represent a variable that can take only three states.
+enum Triad: Int, CaseIterable {
+    case one = 1, two, three
+}
+
+/// Represents a game of Set with a deck of cards, cards in play, and matched cards.
 struct SetGame {
     
-    /// The deck of cards used to play a `SetGame`. At the start of the game this deck will consist of all 81 possible cards.
-    private(set) var deck: Array<SetCard> = []
+    // MARK: - Structures
     
-    /// The group of cards that have been dealt from `deck`. Does not include those that have been dealt and then matched.
-    private(set) var cardsInPlay: Array<SetCard> = []
-    
-    /// The group of cards currently selected by the player.
-    var selectedCards: Array<SetCard> = []
-    
-    /// The group of cards that have been dealt and then matched.
-    var matchedCards: Array<SetCard> = []
-    
-    
-    /// Initialises a SetGame instance by generating `deck` and dealing 12 cards to `cardsInPlay`.
-    init() {
-        generateDeck()
-        //deal(numCards: 12)
-    }
-    
-    mutating func newGame() {
-        deck = []
-        cardsInPlay = []
-        selectedCards = []
-        matchedCards = []
-        generateDeck()
-    }
-    
-    mutating func shuffle() {
-        cardsInPlay.shuffle()
-    }
-    
-    /// Returns the first card in `deck`, or `nil` if `deck` is empty.
-    private mutating func dealNextCard() -> SetCard? {
-        guard !deck.isEmpty else { return nil }
-        var nextCard = deck.removeFirst()
-        nextCard.isFaceUp = true
-        return nextCard
-    }
-    
-    /// Removes numCards from deck and appends them to `cardsInPlay`, provided `numCards` is less than the total number of cards in `deck`, else removes all remaining cards from `deck` and appends them to `cardsInPlay`.
-    mutating func deal(numCards: Int) {
-        for _ in 0..<numCards {
-            if let dealtCard = dealNextCard() {
-                cardsInPlay.append(dealtCard)
-            }
-        }
-        threeCardsAlreadySelected()
-    }
-    
-    /// Returns a bool representing whether the cards contains in `selectedCards` comprise a Set.
-    private func isSet() -> Bool {
-        guard selectedCards.count == 3 else { return false }
-        //return true
-        return [
-            Set(selectedCards.map {$0.color}),
-            Set(selectedCards.map {$0.fill}),
-            Set(selectedCards.map {$0.number}),
-            Set(selectedCards.map {$0.symbol})
-        ].allSatisfy{$0.count != 2}
-    }
-    
-    /// Moves cards that have been matched from `selectedCards` to `matchedCards` and empties `selectedCards`.
-    // TODO: rename this function and change its comment
-    mutating func threeCardsAlreadySelected() {
-        guard selectedCards.count == 3 else { return }
-        let selectedCardsIndices = selectedCards.map{$0.id}
-        if isSet() {
-            matchedCards.append(contentsOf: selectedCards)
-            selectedCardsIndices.forEach { index in
-                if let selectedCardInPlayIndex = cardsInPlay.firstIndex(where: {$0.id == index}) {
-                    cardsInPlay.remove(at: selectedCardInPlayIndex)
-//                    if let nextCard = dealNextCard() {
-//                        cardsInPlay.insert(nextCard, at: selectedCardInPlayIndex)
-//                    }
-                }
-            }
-        } else {
-            selectedCardsIndices.forEach { index in
-                if let selectedCardInPlayIndex = cardsInPlay.firstIndex(where: {$0.id == index}) {
-                    cardsInPlay[selectedCardInPlayIndex].cardState = .unselected
-                }
-            }
-        }
-        selectedCards.removeAll()
-    }
-    
-    mutating func updateSelectedCardsState() {
-        guard selectedCards.count == 3 else { return }
-        let selectedCardsIndices = selectedCards.map{$0.id}
-        selectedCardsIndices.forEach { index in
-            if let selectedCardInPlayIndex = cardsInPlay.firstIndex(where: {$0.id == index}) {
-                if isSet() {
-                    //cardsInPlay[selectedCardInPlayIndex].cardState = .set
-                } else {
-                    cardsInPlay[selectedCardInPlayIndex].cardState = .mismatch
-                }
-            }
-        }
-    }
-    
-     mutating func updateCardState() {
-        guard selectedCards.count == 3 else { return }
-        let selectedCardsIndices = selectedCards.map{$0.id}
-        selectedCardsIndices.forEach { index in
-            if let selectedCardInPlayIndex = cardsInPlay.firstIndex(where: {$0.id == index}) {
-                if isSet() {
-                    cardsInPlay[selectedCardInPlayIndex].cardState = .set
-                } else {
-                    cardsInPlay[selectedCardInPlayIndex].cardState = .mismatch
-                }
-            }
-        }
-    }
-    
-
-    
-    mutating func selectCard(withId id: String) {
-        threeCardsAlreadySelected()
-        if let chosenIndex = cardsInPlay.firstIndex(where: {$0.id == id}) {
-            if let selectedCardIndex = selectedCards.firstIndex(where: {$0.id == id}) {
-                selectedCards.remove(at: selectedCardIndex)
-                cardsInPlay[chosenIndex].cardState = .unselected
-            } else {
-                selectedCards.append(cardsInPlay[chosenIndex])
-                cardsInPlay[chosenIndex].cardState = .selected
-            }
-            //updateSelectedCardsState()
-        }
-    }
-    
-    /// A type to represent the state of a card that is in play
-    enum CardState {
-        case unselected, selected, set, mismatch
-    }
-
-    
-    /// The individual cards in a `SetGame` deck
+    /// Represents an individual card in a Set game.
     struct SetCard: Identifiable, Equatable {
         /// A `Bool` representing whether the card is face up
         var isFaceUp = false
-        
-        /// A `Bool` representing whether the card is has been dealt.
-        var isDealt = false
-        
-        /// A `Bool` representing whether the card is selected.
-        var isSelected = false
-        
-        /// A `Bool` representing whether the card has been matched with two other cards to make a Set
-        var isMatched = false
         
         /// A `CardState` representing the state of the card
         var cardState: CardState = .unselected
@@ -181,6 +43,144 @@ struct SetGame {
         }
     }
     
+    // MARK: - Properties
+    
+    /// The deck of cards used to play a `SetGame`. At the start of the game this deck will consist of all 81 possible cards.
+    private(set) var deck: Array<SetCard> = []
+    
+    /// The group of cards that have been dealt from `deck`. Does not include those that have been dealt and then matched.
+    private(set) var cardsInPlay: Array<SetCard> = []
+    
+    /// The group of cards currently selected by the player.
+    var selectedCards: Array<SetCard> = []
+    
+    /// The group of cards that have been dealt and then matched.
+    var matchedCards: Array<SetCard> = []
+    
+    // MARK: - Initializers
+    
+    /// Initializes a new game of Set.
+    init() {
+        generateDeck()
+    }
+    
+    // MARK: - Public Methods
+    
+    /// Starts a new game by emptying all card arrays and generating a new deck.
+    mutating func newGame() {
+        deck = []
+        cardsInPlay = []
+        selectedCards = []
+        matchedCards = []
+        generateDeck()
+    }
+    
+    /// Shuffles the cards currently in play.
+    mutating func shuffle() {
+        cardsInPlay.shuffle()
+    }
+    
+    /// Deals a specified number of cards from the `deck` to the `cardsInPlay`.
+        /// - Parameter numCards: The number of cards to deal.
+    mutating func deal(numCards: Int) {
+        // Handle case where three cards are already selected before dealing new cards.
+        handleThreeCardSelection()
+        for _ in 0..<numCards {
+            if let dealtCard = dealNextCard() {
+                cardsInPlay.append(dealtCard)
+            }
+        }
+    }
+    
+    /// When three cards are selected, updates the state of the selected cards to either 'set' or 'mismatch'.
+    mutating func updateCardState() {
+        guard selectedCards.count == 3 else { return }
+
+        let newState: CardState = isSet() ? .set : .mismatch
+        updateStateOfSelectedCards(to: newState)
+    }
+    
+    /// Selects or deselects a card based on its identifier and whether it is already selected.
+    /// - Parameter cardID: The unique identifier of the card to be selected or deselected.
+    mutating func selectCard(withId id: String) {
+        // If three cards are already selected, handle their selection status.
+        handleThreeCardSelection()
+        
+        // Ensure the card is in play before proceeding.
+        guard let chosenIndex = cardsInPlay.firstIndex(where: {$0.id == id}) else { return }
+            
+        if let selectedCardIndex = selectedCards.firstIndex(where: {$0.id == id}) {
+            selectedCards.remove(at: selectedCardIndex)
+            cardsInPlay[chosenIndex].cardState = .unselected
+        } else {
+            selectedCards.append(cardsInPlay[chosenIndex])
+            cardsInPlay[chosenIndex].cardState = .selected
+        }
+    }
+    
+    // MARK: - Private Helper Methods
+    
+    /// Returns the first card in `deck`, or `nil` if `deck` is empty.
+    private mutating func dealNextCard() -> SetCard? {
+        guard !deck.isEmpty else { return nil }
+        var nextCard = deck.removeFirst()
+        nextCard.isFaceUp = true
+        return nextCard
+    }
+    
+    /// Returns a bool representing whether the cards contained in `selectedCards` comprise a Set.
+    private func isSet() -> Bool {
+        guard selectedCards.count == 3 else { return false }
+        //return true
+        return [
+            Set(selectedCards.map {$0.color}),
+            Set(selectedCards.map {$0.fill}),
+            Set(selectedCards.map {$0.number}),
+            Set(selectedCards.map {$0.symbol})
+        ].allSatisfy{$0.count != 2}
+    }
+    
+    /// Handles the selection logic when three cards are already selected.
+    /// Moves matched cards or resets unmatched cards based on whether they form a set.
+    mutating private func handleThreeCardSelection() {
+        guard selectedCards.count == 3 else { return }
+
+        if isSet() {
+            moveMatchedCards()
+        } else {
+            resetUnmatchedCards()
+        }
+        selectedCards.removeAll()
+    }
+    
+    /// Moves cards from `cardsInPlay` to `matchedCards`.
+    private mutating func moveMatchedCards() {
+        matchedCards.append(contentsOf: selectedCards)
+        selectedCards.forEach { card in
+            if let index = cardsInPlay.firstIndex(where: { $0.id == card.id }) {
+                cardsInPlay.remove(at: index)
+            }
+        }
+    }
+    
+    /// Resets `cardState` of unmatched cards to `.unselected`.
+    private mutating func resetUnmatchedCards() {
+        selectedCards.forEach { card in
+            if let index = cardsInPlay.firstIndex(where: { $0.id == card.id }) {
+                cardsInPlay[index].cardState = .unselected
+            }
+        }
+    }
+
+    /// Updates `cardState` of `selectedCards` to `newState`.
+    private mutating func updateStateOfSelectedCards(to newState: CardState) {
+        for id in selectedCards.map({ $0.id }) {
+            if let index = cardsInPlay.firstIndex(where: { $0.id == id }) {
+                cardsInPlay[index].cardState = newState
+            }
+        }
+    }
+
     /// Generates a shuffled `deck` with all 81 possible combinations of card `Triad` properties.
     private mutating func generateDeck() {
         for symbol in Triad.allCases {
@@ -195,9 +195,13 @@ struct SetGame {
         }
         deck.shuffle()
     }
+    
+    // MARK: - Enumerations
+    
+    /// Represents one of three possible states or values.
+    enum CardState {
+        case unselected, selected, set, mismatch
+    }
 }
 
-/// A type to represent a variable that can take only three states.
-enum Triad: Int, CaseIterable {
-    case one = 1, two, three
-}
+
