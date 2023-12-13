@@ -11,6 +11,8 @@ SetSwiftUI is an interactive iOS application implementing the popular card game 
 ### 🔁 MVVM Architecture
 - **Model-View-ViewModel**: This architecture was chosen to separate logic and UI in order to enhance maintainability and scalability. The `SetGame` Model handles the game logic, the `SetGameView` View manages the UI and the `SetGameViewModel` ViewModel binds the View to the Model, interprets the Model on behalf of the View and communicates user intentions from the View to the Model.
 
+![MVVM Architecture Diagram](SetSwiftUIStructure.png)
+
 ### 🌟 Animations and Transitions
 -  **Implicit and Explicit Animations**: Smoothly integrated for user interactions.
 - **Transitions and Matched Geometry Effect**: Enhance the visual appeal by animating view appearances and movements.

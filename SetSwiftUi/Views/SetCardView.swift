@@ -7,19 +7,43 @@
 
 import SwiftUI
 
+/// A view that represents an individual card in the Set game.
 struct SetCardView: View {
     typealias SetCard = SetGame.SetCard
-    let setCard: SetCard
-    let viewModel: SetGameViewModel
     
+    // MARK: - Properties
+    private let setCard: SetCard
+    private let viewModel: SetGameViewModel
+    
+    // MARK: - Initialization
+    /// Initializes a new SetCardView with a given SetCard and ViewModel.
     init(_ setCard: SetCard, viewModel: SetGameViewModel) {
         self.setCard = setCard
         self.viewModel = viewModel
     }
     
-    ///
+    // MARK: - Body
+    
+    /// The body of the SetCardView.
+    var body: some View {
+        let inset = CGFloat(10)
+        LazyVGrid(columns: [GridItem()], content: {
+            ForEach(0..<setCard.number.rawValue, id: \.self) { _ in
+                symbolView(for: setCard)
+            }
+        })
+        .padding(EdgeInsets(top: inset, leading: inset, bottom: inset, trailing: inset))
+            .cardify(isFaceUp: setCard.isFaceUp, cardState: setCard.cardState, viewModel: viewModel)
+        .rotationEffect(Angle(degrees: setCard.cardState == .mismatch ? 180 : 0))
+        .scaleEffect(setCard.cardState == .set ? CGSize(width: 2.0, height: 2.0) : CGSize(width: 1.0, height: 1.0))
+        .zIndex(setCard.cardState == .set ? 100 : 0 )
+    }
+    
+    // MARK: - Private Methods
+    
+    /// Generates the symbol view for the given SetCard.
     @ViewBuilder
-    private func generateSymbol(for setCard: SetGame.SetCard) -> some View {
+    private func symbolView(for setCard: SetGame.SetCard) -> some View {
         switch setCard.symbol {
         case .one:  applyShading(to: Diamond(), for: setCard)
         case .two:  applyShading(to: Circle(), for: setCard)
@@ -27,6 +51,7 @@ struct SetCardView: View {
         }
     }
     
+    /// Applies shading to the given shape for the specified SetCard.
     private func applyShading(to shape: some Shape, for setCard: SetCard) -> some View {
         let setCardRepresentation = viewModel.setCardRepresentation(setCard)
         return shape
@@ -36,19 +61,7 @@ struct SetCardView: View {
             .aspectRatio(2, contentMode: .fit) // aspect ratio of 2 for the symbol inside the card is 3 x 2/3 - i.e. three times the aspect ratio of the card itself.
     }
         
-    var body: some View {
-        let inset = CGFloat(10)
-        LazyVGrid(columns: [GridItem()], content: {
-            ForEach(0..<setCard.number.rawValue, id: \.self) { _ in
-                generateSymbol(for: setCard)
-            }
-        })
-        .padding(EdgeInsets(top: inset, leading: inset, bottom: inset, trailing: inset))
-            .cardify(isFaceUp: setCard.isFaceUp, cardState: setCard.cardState, viewModel: viewModel)
-        .rotationEffect(Angle(degrees: setCard.cardState == .mismatch ? 180 : 0))
-        .scaleEffect(setCard.cardState == .set ? CGSize(width: 2.0, height: 2.0) : CGSize(width: 1.0, height: 1.0))
-        .zIndex(setCard.cardState == .set ? 100 : 0 )
-    }
+    
     
 }
 

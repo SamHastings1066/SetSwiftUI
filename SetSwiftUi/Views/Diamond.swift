@@ -7,7 +7,8 @@
 
 import SwiftUI
 
-struct Diamond: Shape {    
+/// A custome Shape that represents a diamond.
+struct Diamond: Shape {
     func path(in rect: CGRect) -> Path {
         let topPoint = CGPoint(x: rect.midX, y: rect.minY)
         let rightPoint = CGPoint(x: rect.maxX, y: rect.midY)

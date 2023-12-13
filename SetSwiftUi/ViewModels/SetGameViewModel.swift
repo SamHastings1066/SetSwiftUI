@@ -7,37 +7,35 @@
 
 import SwiftUI
 
+/// ViewModel for the SetGame. Manages the game logic and provides data for the UI.
 @Observable class SetGameViewModel {
     typealias SetCard = SetGame.SetCard
     
     private var setGame = SetGame()
     
+    /// Cards currently in play.
     var cardsInPlay: Array<SetCard> {
         return setGame.cardsInPlay
     }
     
+    /// Remaining cards in the deck.
     var deck: Array<SetCard> {
          return setGame.deck
     }
     
+    /// Cards that have been successfully matched.
     var matchedCards: Array<SetCard> {
         return setGame.matchedCards
     }
     
-    func deal(numCards: Int) {
-        setGame.deal(numCards: numCards)
-    }
-    
+    /// The color used for the back of the cards.
     var cardBackColor: Color {
         return .teal
     }
-    
+    /// Indicates whether it's the first deal of the game.
     var isFirstDeal = true
     
-    func updateCardState() {
-        setGame.updateCardState()
-    }
-    
+    /// Represents the visual appearance of a SetCard.
     struct SetCardRepresentation {
         let strokeColor: Color
         let strokeLineWidth: CGFloat
@@ -83,31 +81,48 @@ import SwiftUI
         }
     }
     
-    func setCardRepresentation(_ setCard: SetCard) -> SetCardRepresentation {
-        return SetCardRepresentation(setCard)
-    }
+    // MARK: - User Intents
     
-    
-    // MARK: - Intents
-    
-    func dealThreeCards() {
-        setGame.deal(numCards: 3)
-        
-    }
-    
+    /// Starts a new game.
     func newGame() {
         setGame.newGame()
         isFirstDeal = true
-
     }
     
+    /// Shuffles the cards currently in play.
     func shuffle() {
         setGame.shuffle()
     }
     
+    /// Deals three cards.
+    func dealThreeCards() {
+        setGame.deal(numCards: 3)
+        
+    }
+
+    /// Selects or deselects a card based on its identifier string `id`.
     func selectCard(withId id: String) {
         setGame.selectCard(withId: id)
     }
     
+
+    // MARK: - Other Methods
+    
+    /// Deals `numCards` number of cards.
+    func deal(numCards: Int) {
+        setGame.deal(numCards: numCards)
+    }
+    
+    /// Updates the state of the selected cards.
+    func updateCardState() {
+        setGame.updateCardState()
+    }
+    
+    /// Gets the visual representation of a SetCard.
+    func setCardRepresentation(_ setCard: SetCard) -> SetCardRepresentation {
+        return SetCardRepresentation(setCard)
+    }
+    
+
 
 }

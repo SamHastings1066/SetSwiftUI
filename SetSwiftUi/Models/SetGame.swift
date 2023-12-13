@@ -15,6 +15,8 @@ enum Triad: Int, CaseIterable {
 /// Represents a game of Set with a deck of cards, cards in play, and matched cards.
 struct SetGame {
     
+    static var gameNumber = 0
+    
     // MARK: - Structures
     
     /// Represents an individual card in a Set game.
@@ -39,8 +41,9 @@ struct SetGame {
         
         /// Unique id of a card computed from its `symbol`, `color`, `fill` and `number`.
         var id: String {
-            return String(symbol.rawValue) + String(color.rawValue) + String(fill.rawValue) + String(number.rawValue)
+            return String(symbol.rawValue) + String(color.rawValue) + String(fill.rawValue) + String(number.rawValue) + String(SetGame.gameNumber)
         }
+        //let id = UUID().uuidString
     }
     
     // MARK: - Properties
@@ -52,10 +55,10 @@ struct SetGame {
     private(set) var cardsInPlay: Array<SetCard> = []
     
     /// The group of cards currently selected by the player.
-    var selectedCards: Array<SetCard> = []
+    private var selectedCards: Array<SetCard> = []
     
     /// The group of cards that have been dealt and then matched.
-    var matchedCards: Array<SetCard> = []
+    private(set) var matchedCards: Array<SetCard> = []
     
     // MARK: - Initializers
     
@@ -68,6 +71,7 @@ struct SetGame {
     
     /// Starts a new game by emptying all card arrays and generating a new deck.
     mutating func newGame() {
+        SetGame.gameNumber += 1
         deck = []
         cardsInPlay = []
         selectedCards = []
@@ -142,7 +146,7 @@ struct SetGame {
     
     /// Handles the selection logic when three cards are already selected.
     /// Moves matched cards or resets unmatched cards based on whether they form a set.
-    mutating private func handleThreeCardSelection() {
+    private mutating func handleThreeCardSelection() {
         guard selectedCards.count == 3 else { return }
 
         if isSet() {
@@ -203,5 +207,4 @@ struct SetGame {
         case unselected, selected, set, mismatch
     }
 }
-
 
